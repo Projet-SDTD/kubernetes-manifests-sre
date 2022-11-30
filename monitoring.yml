@@ -159,11 +159,9 @@ metadata:
 spec:
   selector: 
     app: prometheus-server
-  type: NodePort  
   ports:
     - port: 9090
-      targetPort: 9090 
-      nodePort: 30000
+      targetPort: 9090
 ---
 
 #------------------------------------------------
@@ -704,8 +702,21 @@ metadata:
 spec:
   selector: 
     app: grafana
-  type: NodePort  
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30001
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-dashboard-ingress
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`grafana.sdtd.marche.ovh`)
+    kind: Rule
+    services:
+      - name: grafana
+        port: 3000
