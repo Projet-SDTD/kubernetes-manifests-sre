@@ -327,9 +327,12 @@ data:
           },
           "targets": [
             {
-              "datasource": "Prometheus",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
               "editorMode": "code",
-              "expr": "sum by(container) (rate(container_cpu_usage_seconds_total{namespace=\"default\", container!=''}[$__rate_interval]))",
+              "expr": "sum by(namespace) (rate(container_cpu_usage_seconds_total{namespace!=''}[$__rate_interval]))",
               "legendFormat": "{{container}}",
               "range": true,
               "refId": "A"
@@ -421,7 +424,7 @@ data:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "sum by(container) (rate(container_cpu_usage_seconds_total{container!=\"\"}[$__rate_interval]))",
+              "expr": "sum by(kubernetes_io_hostname) (rate(container_cpu_usage_seconds_total{}[$__rate_interval]))",
               "legendFormat": "{{container}}",
               "range": true,
               "refId": "A"
@@ -507,7 +510,7 @@ data:
             {
               "datasource": "Prometheus",
               "editorMode": "code",
-              "expr": "sum by(container) (container_memory_usage_bytes{namespace=\"monitoring\", container!=\"\"}) / 1000000",
+              "expr": "sum by(namespace) (container_memory_usage_bytes{namespace!=''}) / 1000000",
               "legendFormat": "{{container}}",
               "range": true,
               "refId": "A"
