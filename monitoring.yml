@@ -76,6 +76,13 @@ data:
           - "alertmanager.monitoring.svc:9093"
 
     scrape_configs:
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_endpoints_name]
+          regex: 'node-exporter'
+          action: keep
       - job_name: kubernetes-nodes-cadvisor
         scrape_interval: 10s
         scrape_timeout: 10s
@@ -246,6 +253,7 @@ data:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
+      "id": 2,
       "links": [],
       "liveNow": true,
       "panels": [
@@ -302,12 +310,13 @@ data:
                     "value": 80
                   }
                 ]
-              }
+              },
+              "unit": "s"
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 8,
+            "h": 11,
             "w": 12,
             "x": 0,
             "y": 0
@@ -338,7 +347,7 @@ data:
               "refId": "A"
             }
           ],
-          "title": "Nginx CPU rate",
+          "title": "namespace CPU rate",
           "type": "timeseries"
         },
         {
@@ -358,15 +367,15 @@ data:
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
+                "fillOpacity": 27,
+                "gradientMode": "opacity",
                 "hideFrom": {
                   "legend": false,
                   "tooltip": false,
                   "viz": false
                 },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": {
                   "type": "linear"
@@ -394,12 +403,13 @@ data:
                     "value": 80
                   }
                 ]
-              }
+              },
+              "unit": "s"
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 8,
+            "h": 11,
             "w": 12,
             "x": 12,
             "y": 0
@@ -430,7 +440,7 @@ data:
               "refId": "A"
             }
           ],
-          "title": "CPU rate in all namespace",
+          "title": "VM CPU rate",
           "type": "timeseries"
         },
         {
@@ -491,9 +501,9 @@ data:
             "h": 12,
             "w": 12,
             "x": 0,
-            "y": 8
+            "y": 11
           },
-          "id": 2,
+          "id": 11,
           "options": {
             "legend": {
               "calcs": [],
@@ -510,13 +520,13 @@ data:
             {
               "datasource": "Prometheus",
               "editorMode": "code",
-              "expr": "sum by(namespace) (container_memory_usage_bytes{namespace!=''}) / 1000000",
+              "expr": "sum by(namespace) (container_memory_usage_bytes{namespace!=\"\"}) / 1000000",
               "legendFormat": "{{container}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Memory used in monitoring",
+          "title": "traefik in container memory",
           "type": "timeseries"
         },
         {
@@ -544,7 +554,7 @@ data:
                   "viz": false
                 },
                 "lineInterpolation": "smooth",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
                 "scaleDistribution": {
                   "type": "linear"
@@ -573,7 +583,7 @@ data:
                   }
                 ]
               },
-              "unit": "KiBs"
+              "unit": "Bps"
             },
             "overrides": []
           },
@@ -581,7 +591,7 @@ data:
             "h": 12,
             "w": 12,
             "x": 12,
-            "y": 8
+            "y": 11
           },
           "id": 6,
           "interval": "5",
@@ -601,14 +611,296 @@ data:
             {
               "datasource": "Prometheus",
               "editorMode": "builder",
-              "expr": "sum by(pod) (rate(container_network_receive_bytes_total{namespace=\"monitoring\"}[$__rate_interval]) / 1000)",
+              "expr": "sum by(kubernetes_io_hostname) (rate(container_network_receive_bytes_total[$__rate_interval]))",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Bytes received in monitoring",
+          "title": "VM Bytes received",
           "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 18,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 7,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "percentage",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "decmbytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 24,
+            "w": 24,
+            "x": 0,
+            "y": 23
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "editorMode": "code",
+              "expr": "sum by(pod) (container_memory_usage_bytes{pod!=\"\"}) / 1000000",
+              "legendFormat": "{{container}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "container memory",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  },
+                  {
+                    "color": "transparent",
+                    "value": 101
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 0,
+            "y": 47
+          },
+          "id": 13,
+          "options": {
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          },
+          "pluginVersion": "9.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "expr": "sum by(pod) (container_memory_usage_bytes{namespace=\"sdtd\"}) / 1000000",
+              "hide": true,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "expr": "sum by(pod) (container_spec_memory_limit_bytes{namespace=\"sdtd\"}) / 1000000",
+              "hide": true,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "name": "Expression",
+                "type": "__expr__",
+                "uid": "__expr__"
+              },
+              "expression": "$A / $B *100",
+              "hide": false,
+              "refId": "C",
+              "type": "math"
+            }
+          ],
+          "title": "Memory percent container of SDTD",
+          "type": "gauge"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  },
+                  {
+                    "color": "transparent",
+                    "value": 101
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 12,
+            "y": 47
+          },
+          "id": 14,
+          "options": {
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true
+          },
+          "pluginVersion": "9.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "builder",
+              "expr": "sum by(pod) (rate(container_cpu_usage_seconds_total{namespace=\"sdtd\"}[$__rate_interval])) * 1000",
+              "hide": true,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "builder",
+              "expr": "sum by(pod) (container_spec_cpu_quota{namespace=\"sdtd\"}) / 100",
+              "hide": true,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "name": "Expression",
+                "type": "__expr__",
+                "uid": "__expr__"
+              },
+              "expression": "$A / $B *100",
+              "hide": false,
+              "refId": "C",
+              "type": "math"
+            }
+          ],
+          "title": "CPU percent container of SDTD",
+          "type": "gauge"
         }
       ],
       "refresh": "5s",
@@ -624,8 +916,8 @@ data:
       },
       "timepicker": {},
       "timezone": "",
-      "title": "Dashboard test Kube",
-      "uid": "jMr0rHSVz",
+      "title": "Dashboard  oui",
+      "uid": "poui",
       "version": 1,
       "weekStart": ""
     }
